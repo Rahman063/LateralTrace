@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+            Account Investigation
+        </h1>
+
+        <p>
+            Review accounts observed across the Windows environment.
+        </p>
+
+    </div>
+
+    <div class="incident-status">
+        ACCOUNTS
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>
+                Observed Accounts
+            </h2>
+
+            <p>
+                Select an account to investigate its authentication
+                activity and host relationships.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Account
+                    </th>
+
+                    <th>
+                        Events
+                    </th>
+
+                    <th>
+                        Hosts
+                    </th>
+
+                    <th>
+                        Source IPs
+                    </th>
+
+                    <th>
+                        First Seen
+                    </th>
+
+                    <th>
+                        Last Seen
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for account in accounts %}
+
+                <tr>
+
+                    <td>
+
+                        <a
+                            href="/accounts/{{ account.account }}"
+                            class="table-link"
+                        >
+                            {{ account.account }}
+                        </a>
+
+                    </td>
+
+
+                    <td>
+                        {{ account.event_count }}
+                    </td>
+
+
+                    <td>
+                        {{ account.host_count }}
+                    </td>
+
+
+                    <td>
+                        {{ account.source_count }}
+                    </td>
+
+
+                    <td class="timestamp">
+                        {{ account.first_seen }}
+                    </td>
+
+
+                    <td class="timestamp">
+                        {{ account.last_seen }}
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+
+                    <td
+                        colspan="6"
+                        class="empty"
+                    >
+                        No accounts found.
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

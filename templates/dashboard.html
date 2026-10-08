@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+        <h1>LateralTrace</h1>
+        <p>Windows Security Monitoring & Investigation</p>
+    </div>
+
+</div>
+
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+        <div class="stat-label">
+            Total Events
+        </div>
+
+        <div class="stat-value">
+            {{ stats.total_events }}
+        </div>
+    </div>
+
+
+    <div class="stat-card">
+        <div class="stat-label">
+            Windows Events
+        </div>
+
+        <div class="stat-value">
+            {{ stats.windows_events }}
+        </div>
+    </div>
+
+
+    <div class="stat-card">
+        <div class="stat-label">
+            Synthetic Events
+        </div>
+
+        <div class="stat-value">
+            {{ stats.synthetic_events }}
+        </div>
+    </div>
+
+
+    <div class="stat-card">
+        <div class="stat-label">
+            New Alerts
+        </div>
+
+        <div class="stat-value">
+            {{ stats.new_alerts }}
+        </div>
+    </div>
+
+</div>
+
+
+<div class="card">
+
+    <div class="section-header">
+
+        <h2>Active Alert Severity</h2>
+
+        <a href="/alerts/">
+            View All Alerts
+        </a>
+
+    </div>
+
+
+    <div class="severity-grid">
+
+        <div class="severity-card critical">
+            <span>CRITICAL</span>
+            <strong>
+                {{ stats.critical_alerts }}
+            </strong>
+        </div>
+
+
+        <div class="severity-card high">
+            <span>HIGH</span>
+            <strong>
+                {{ stats.high_alerts }}
+            </strong>
+        </div>
+
+
+        <div class="severity-card medium">
+            <span>MEDIUM</span>
+            <strong>
+                {{ stats.medium_alerts }}
+            </strong>
+        </div>
+
+
+        <div class="severity-card low">
+            <span>LOW</span>
+            <strong>
+                {{ stats.low_alerts }}
+            </strong>
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="card">
+
+    <div class="section-header">
+
+        <h2>Recent Alerts</h2>
+
+        <a href="/alerts/">
+            Open Alert Queue
+        </a>
+
+    </div>
+
+
+    {% if recent_alerts %}
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Time</th>
+                    <th>Severity</th>
+                    <th>Detection</th>
+                    <th>Account</th>
+                    <th>Computer</th>
+                    <th>Score</th>
+                    <th>Status</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+            {% for alert in recent_alerts %}
+
+                <tr>
+
+                    <td>
+                        {{ alert.timestamp }}
+                    </td>
+
+                    <td>
+
+                        <span class="alert-severity severity-{{ alert.severity|lower }}">
+                            {{ alert.severity }}
+                        </span>
+
+                    </td>
+
+                    <td>
+                        {{ alert.detection_type }}
+                    </td>
+
+                    <td>
+                        {{ alert.account or "-" }}
+                    </td>
+
+                    <td>
+                        {{ alert.computer or "-" }}
+                    </td>
+
+                    <td>
+                        {{ alert.score }}
+                    </td>
+
+                    <td>
+                        {{ alert.status }}
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {% else %}
+
+    <div class="empty-state">
+        No alerts have been generated yet.
+    </div>
+
+    {% endif %}
+
+</div>
+
+
+<div class="card">
+
+    <div class="section-header">
+
+        <h2>Investigation Workflow</h2>
+
+    </div>
+
+    <div class="workflow">
+
+        <span>Event</span>
+        <span>→</span>
+        <span>Account</span>
+        <span>→</span>
+        <span>Host</span>
+        <span>→</span>
+        <span>Timeline</span>
+        <span>→</span>
+        <span>Attack Graph</span>
+        <span>→</span>
+        <span>Incident</span>
+
+    </div>
+
+</div>
+
+{% endblock %}

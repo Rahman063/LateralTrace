@@ -1,0 +1,323 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+            Timeline Reconstruction
+        </h1>
+
+        <p>
+            Reconstruct authentication and privileged activity
+            in chronological order.
+        </p>
+
+    </div>
+
+    <div class="incident-status">
+        TIMELINE
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>
+                Investigation Timeline
+            </h2>
+
+            <p>
+                Suspicious authentication, credential use,
+                privilege assignment and process creation.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <form
+        method="get"
+        action="/timeline/"
+        class="filter-form"
+    >
+
+        <div class="filter-group">
+
+            <label>
+                Account
+            </label>
+
+            <input
+                type="text"
+                name="account"
+                value="{{ account }}"
+                placeholder="svc_backup"
+            >
+
+        </div>
+
+
+        <button type="submit">
+            Filter Timeline
+        </button>
+
+    </form>
+
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Time
+                    </th>
+
+                    <th>
+                        Category
+                    </th>
+
+                    <th>
+                        Event
+                    </th>
+
+                    <th>
+                        Host
+                    </th>
+
+                    <th>
+                        Account
+                    </th>
+
+                    <th>
+                        Source
+                    </th>
+
+                    <th>
+                        Details
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for event in events %}
+
+                <tr>
+
+                    <td class="timestamp">
+                        {{ event.timestamp }}
+                    </td>
+
+
+                    <td>
+
+                        <span class="timeline-category">
+                            {{ event.category }}
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="event-id">
+                            {{ event.event_id }}
+                        </span>
+
+                    </td>
+
+
+                    <td>
+                        <strong>
+                            {{ event.computer }}
+                        </strong>
+                    </td>
+
+
+                    <td>
+                        {{ event.account }}
+                    </td>
+
+
+                    <td class="timestamp">
+                        {{ event.source_ip or "-" }}
+                    </td>
+
+
+                    <td>
+
+                        {% if event.process_name %}
+
+                            <div>
+                                {{ event.process_name }}
+                            </div>
+
+                            <div class="timeline-command">
+                                {{ event.command_line }}
+                            </div>
+
+                        {% else %}
+
+                            {{ event.description }}
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+
+                    <td
+                        colspan="7"
+                        class="empty"
+                    >
+                        No timeline events found.
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>
+                Investigation Interpretation
+            </h2>
+
+            <p>
+                The analyst should correlate consecutive events
+                rather than treat each event independently.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="timeline-analysis">
+
+        <div class="analysis-step">
+
+            <span class="analysis-number">
+                01
+            </span>
+
+            <div>
+
+                <strong>
+                    Initial Access
+                </strong>
+
+                <p>
+                    Identify the first unusual authentication
+                    associated with the investigated account.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="analysis-step">
+
+            <span class="analysis-number">
+                02
+            </span>
+
+            <div>
+
+                <strong>
+                    Host Transition
+                </strong>
+
+                <p>
+                    Determine whether the account subsequently
+                    authenticates to another system.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="analysis-step">
+
+            <span class="analysis-number">
+                03
+            </span>
+
+            <div>
+
+                <strong>
+                    Privilege Escalation
+                </strong>
+
+                <p>
+                    Correlate Event ID 4672 with the authentication
+                    that preceded it.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="analysis-step">
+
+            <span class="analysis-number">
+                04
+            </span>
+
+            <div>
+
+                <strong>
+                    Execution
+                </strong>
+
+                <p>
+                    Examine Event ID 4688 and command-line activity
+                    following privileged authentication.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

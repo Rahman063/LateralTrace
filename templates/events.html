@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>Security Events</h1>
+        <p>Windows Security telemetry and synthetic investigation data</p>
+    </div>
+</div>
+
+
+<div class="card">
+
+    <form method="get" class="filter-grid">
+
+        <div>
+            <label>Event ID</label>
+            <input
+                type="text"
+                name="event_id"
+                value="{{ filters.event_id }}"
+                placeholder="4624"
+            >
+        </div>
+
+        <div>
+            <label>Account</label>
+            <input
+                type="text"
+                name="account"
+                value="{{ filters.account }}"
+                placeholder="username"
+            >
+        </div>
+
+        <div>
+            <label>Computer</label>
+            <input
+                type="text"
+                name="computer"
+                value="{{ filters.computer }}"
+                placeholder="COMPUTER"
+            >
+        </div>
+
+        <div>
+            <label>Source IP</label>
+            <input
+                type="text"
+                name="source_ip"
+                value="{{ filters.source_ip }}"
+                placeholder="192.168.1.10"
+            >
+        </div>
+
+        <div>
+            <label>Logon Type</label>
+            <input
+                type="text"
+                name="logon_type"
+                value="{{ filters.logon_type }}"
+                placeholder="3"
+            >
+        </div>
+
+        <div>
+            <label>Source</label>
+            <select name="source">
+
+                <option
+                    value=""
+                    {% if not filters.source %}
+                    selected
+                    {% endif %}
+                >
+                    All Sources
+                </option>
+
+                <option
+                    value="windows"
+                    {% if filters.source == "windows" %}
+                    selected
+                    {% endif %}
+                >
+                    Windows
+                </option>
+
+                <option
+                    value="synthetic"
+                    {% if filters.source == "synthetic" %}
+                    selected
+                    {% endif %}
+                >
+                    Synthetic
+                </option>
+
+            </select>
+        </div>
+
+        <div>
+            <button type="submit">
+                Search Events
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+
+<div class="card">
+
+    <div class="section-header">
+        <h2>Events</h2>
+
+        <span class="event-count">
+            {{ events|length }} events
+        </span>
+    </div>
+
+
+    {% if events %}
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Event</th>
+                    <th>Computer</th>
+                    <th>Account</th>
+                    <th>Source IP</th>
+                    <th>Logon</th>
+                    <th>Process</th>
+                    <th>Source</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for event in events %}
+
+                <tr>
+
+                    <td>
+                        {{ event.timestamp }}
+                    </td>
+
+                    <td>
+                        <strong>
+                            {{ event.event_id }}
+                        </strong>
+                    </td>
+
+                    <td>
+                        {{ event.computer }}
+                    </td>
+
+                    <td>
+                        {{ event.account or "-" }}
+                    </td>
+
+                    <td>
+                        {{ event.source_ip or "-" }}
+                    </td>
+
+                    <td>
+                        {{ event.logon_type or "-" }}
+                    </td>
+
+                    <td>
+                        {% if event.process_name %}
+                            {{ event.process_name }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td>
+
+                        {% if event.source == "windows" %}
+
+                            <span class="badge badge-windows">
+                                WINDOWS
+                            </span>
+
+                        {% else %}
+
+                            <span class="badge badge-synthetic">
+                                SYNTHETIC
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+                {% if event.command_line %}
+
+                <tr class="event-details">
+
+                    <td colspan="8">
+
+                        <strong>
+                            Command:
+                        </strong>
+
+                        {{ event.command_line }}
+
+                    </td>
+
+                </tr>
+
+                {% endif %}
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    {% else %}
+
+        <div class="empty-state">
+            No events matched the current filters.
+        </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

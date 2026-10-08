@@ -1,0 +1,592 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% set alert = incident.alert %}
+
+<div class="incident-page">
+
+    <!-- Header -->
+
+    <div class="incident-header">
+
+        <div>
+            <div class="incident-kicker">
+                SECURITY INCIDENT
+            </div>
+
+            <h1>
+                Incident #{{ alert.id }}
+            </h1>
+
+            <p>
+                {{ alert.message }}
+            </p>
+        </div>
+
+        <div class="incident-header-actions">
+
+            <a
+                href="/report/{{ alert.id }}"
+                class="primary-button"
+            >
+                Generate Report
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- Summary -->
+
+    <div class="incident-summary">
+
+        <div class="incident-stat">
+
+            <span>Severity</span>
+
+            <strong class="severity-value severity-{{ alert.severity|lower }}">
+                {{ alert.severity }}
+            </strong>
+
+        </div>
+
+
+        <div class="incident-stat">
+
+            <span>Risk Score</span>
+
+            <strong>
+                {{ alert.score }}
+            </strong>
+
+        </div>
+
+
+        <div class="incident-stat">
+
+            <span>Account</span>
+
+            <strong>
+                {{ alert.account or "-" }}
+            </strong>
+
+        </div>
+
+
+        <div class="incident-stat">
+
+            <span>Status</span>
+
+            <strong>
+                {{ alert.status }}
+            </strong>
+
+        </div>
+
+
+        <div class="incident-stat">
+
+            <span>Detection</span>
+
+            <strong>
+                {{ alert.detection_type }}
+            </strong>
+
+        </div>
+
+    </div>
+
+
+    <!-- Status -->
+
+    <div class="incident-status-bar">
+
+        <div>
+
+            <span class="section-label">
+                Incident Status
+            </span>
+
+            <strong>
+                {{ alert.status }}
+            </strong>
+
+        </div>
+
+        <form
+            method="post"
+            action="/incidents/{{ alert.id }}/status"
+            class="status-form"
+        >
+
+            <select name="status">
+
+                <option
+                    value="NEW"
+                    {% if alert.status == "NEW" %}selected{% endif %}
+                >
+                    NEW
+                </option>
+
+                <option
+                    value="INVESTIGATING"
+                    {% if alert.status == "INVESTIGATING" %}selected{% endif %}
+                >
+                    INVESTIGATING
+                </option>
+
+                <option
+                    value="RESOLVED"
+                    {% if alert.status == "RESOLVED" %}selected{% endif %}
+                >
+                    RESOLVED
+                </option>
+
+                <option
+                    value="FALSE_POSITIVE"
+                    {% if alert.status == "FALSE_POSITIVE" %}selected{% endif %}
+                >
+                    FALSE POSITIVE
+                </option>
+
+            </select>
+
+            <button type="submit">
+                Update Status
+            </button>
+
+        </form>
+
+    </div>
+
+
+    <!-- Investigation Overview -->
+
+    <div class="incident-grid">
+
+
+        <!-- Detection -->
+
+        <div class="incident-card">
+
+            <div class="card-title">
+
+                <span class="card-icon">
+                    !
+                </span>
+
+                <div>
+                    <h2>Detection</h2>
+
+                    <p>
+                        Security detection that triggered this incident.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="detection-box">
+
+                <span>
+                    {{ alert.detection_type }}
+                </span>
+
+                <p>
+                    {{ alert.message }}
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- Affected Hosts -->
+
+        <div class="incident-card">
+
+            <div class="card-title">
+
+                <span class="card-icon">
+                    #
+                </span>
+
+                <div>
+                    <h2>Affected Hosts</h2>
+
+                    <p>
+                        Systems associated with this detection.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="host-list">
+
+                {% if alert.computer %}
+
+                    {% for host in alert.computer.split(",") %}
+
+                        <div class="host-item">
+
+                            <span class="host-dot"></span>
+
+                            <strong>
+                                {{ host.strip() }}
+                            </strong>
+
+                        </div>
+
+                    {% endfor %}
+
+                {% else %}
+
+                    <p class="muted">
+                        No host information available.
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- MITRE ATT&CK -->
+
+    <div class="incident-card mitre-card">
+
+        <div class="card-title">
+
+            <span class="card-icon">
+                M
+            </span>
+
+            <div>
+
+                <h2>MITRE ATT&CK</h2>
+
+                <p>
+                    Technique associated with this detection.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="mitre-details">
+
+            <div>
+
+                <span>Technique</span>
+
+                <strong>
+                    {{ mitre.technique }}
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span>Name</span>
+
+                <strong>
+                    {{ mitre.name }}
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span>Tactic</span>
+
+                <strong>
+                    {{ mitre.tactic }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Related Events -->
+
+    <div class="incident-card">
+
+        <div class="card-title">
+
+            <span class="card-icon">
+                E
+            </span>
+
+            <div>
+
+                <h2>Related Events</h2>
+
+                <p>
+                    Telemetry associated with this incident.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="table-container">
+
+            <table class="incident-events-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Time</th>
+                        <th>Event</th>
+                        <th>Computer</th>
+                        <th>Account</th>
+                        <th>Process</th>
+                        <th>Command</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for event in incident.events %}
+
+                    <tr>
+
+                        <td>
+                            {{ event.timestamp }}
+                        </td>
+
+                        <td>
+
+                            <span class="event-id">
+                                {{ event.event_id }}
+                            </span>
+
+                        </td>
+
+                        <td>
+                            {{ event.computer }}
+                        </td>
+
+                        <td>
+                            {{ event.account or "-" }}
+                        </td>
+
+                        <td>
+                            {{ event.process_name or "-" }}
+                        </td>
+
+                        <td class="command-cell">
+                            {{ event.command_line or "-" }}
+                        </td>
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+
+                        <td colspan="6" class="empty-state">
+                            No related events found.
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- Investigation Timeline -->
+
+    <div class="incident-card">
+
+        <div class="card-title">
+
+            <span class="card-icon">
+                T
+            </span>
+
+            <div>
+
+                <h2>Investigation Timeline</h2>
+
+                <p>
+                    Chronological sequence of related activity.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="investigation-timeline">
+
+        {% for event in incident.events %}
+
+            <div class="timeline-entry">
+
+                <div class="timeline-marker"></div>
+
+                <div class="timeline-content">
+
+                    <div class="timeline-meta">
+
+                        <strong>
+                            {{ event.timestamp }}
+                        </strong>
+
+                        <span>
+                            Event {{ event.event_id }}
+                        </span>
+
+                    </div>
+
+                    <h3>
+                        {{ event.description or "Security event" }}
+                    </h3>
+
+                    <p>
+
+                        <strong>
+                            {{ event.computer }}
+                        </strong>
+
+                        {% if event.account %}
+                            · {{ event.account }}
+                        {% endif %}
+
+                    </p>
+
+                    {% if event.process_name %}
+
+                        <div class="timeline-process">
+
+                            Process:
+                            <strong>
+                                {{ event.process_name }}
+                            </strong>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+                No timeline events available.
+            </div>
+
+        {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <!-- Incident Metadata -->
+
+    <div class="incident-card">
+
+        <div class="card-title">
+
+            <span class="card-icon">
+                I
+            </span>
+
+            <div>
+
+                <h2>Incident Details</h2>
+
+                <p>
+                    Additional investigation metadata.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="metadata-grid">
+
+            <div>
+                <span>Alert ID</span>
+                <strong>#{{ alert.id }}</strong>
+            </div>
+
+            <div>
+                <span>Detection Type</span>
+                <strong>{{ alert.detection_type }}</strong>
+            </div>
+
+            <div>
+                <span>Severity</span>
+                <strong>{{ alert.severity }}</strong>
+            </div>
+
+            <div>
+                <span>Risk Score</span>
+                <strong>{{ alert.score }}</strong>
+            </div>
+
+            <div>
+                <span>First Observed</span>
+                <strong>{{ alert.timestamp }}</strong>
+            </div>
+
+            <div>
+                <span>Related Events</span>
+                <strong>{{ incident.events|length }}</strong>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Actions -->
+
+    <div class="incident-footer">
+
+        <a
+            href="/alerts/"
+            class="secondary-button"
+        >
+            Back to Alerts
+        </a>
+
+        <a
+            href="/report/{{ alert.id }}"
+            class="primary-button"
+        >
+            Generate Report
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,708 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% set alert = incident.alert %}
+
+<div class="report-page">
+
+    <!-- Report Header -->
+
+    <div class="report-header">
+
+        <div>
+
+            <div class="report-kicker">
+                LATERALTRACE SECURITY OPERATIONS
+            </div>
+
+            <h1>Security Incident Report</h1>
+
+            <p>
+                Investigation report for incident #{{ alert.id }}
+            </p>
+
+        </div>
+
+        <div class="report-header-actions">
+
+            <button
+                type="button"
+                class="report-print-button"
+                onclick="window.print()"
+            >
+                Print / Save PDF
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <!-- Executive Summary -->
+
+    <section class="report-section">
+
+        <div class="report-section-header">
+
+            <div>
+                <span class="report-section-number">01</span>
+                <h2>Executive Summary</h2>
+            </div>
+
+        </div>
+
+
+        <div class="report-summary">
+
+            <div class="report-summary-main">
+
+                <span class="report-label">
+                    Detection
+                </span>
+
+                <h3>
+                    {{ alert.detection_type }}
+                </h3>
+
+                <p>
+                    {{ alert.message }}
+                </p>
+
+            </div>
+
+
+            <div class="report-summary-status">
+
+                <div>
+                    <span class="report-label">
+                        Severity
+                    </span>
+
+                    <strong
+                        class="report-severity severity-{{ alert.severity|lower }}"
+                    >
+                        {{ alert.severity }}
+                    </strong>
+                </div>
+
+
+                <div>
+                    <span class="report-label">
+                        Risk Score
+                    </span>
+
+                    <strong>
+                        {{ alert.score }}
+                    </strong>
+                </div>
+
+
+                <div>
+                    <span class="report-label">
+                        Status
+                    </span>
+
+                    <strong>
+                        {{ alert.status }}
+                    </strong>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Incident Details -->
+
+    <section class="report-section">
+
+        <div class="report-section-header">
+
+            <div>
+                <span class="report-section-number">02</span>
+                <h2>Incident Details</h2>
+            </div>
+
+        </div>
+
+
+        <div class="report-details-grid">
+
+            <div>
+                <span>Incident ID</span>
+                <strong>#{{ alert.id }}</strong>
+            </div>
+
+            <div>
+                <span>Detection Type</span>
+                <strong>{{ alert.detection_type }}</strong>
+            </div>
+
+            <div>
+                <span>Account</span>
+                <strong>{{ alert.account or "-" }}</strong>
+            </div>
+
+            <div>
+                <span>Computer</span>
+                <strong>{{ alert.computer or "-" }}</strong>
+            </div>
+
+            <div>
+                <span>Source IP</span>
+                <strong>{{ alert.source_ip or "-" }}</strong>
+            </div>
+
+            <div>
+                <span>Detection Time</span>
+                <strong>{{ alert.timestamp }}</strong>
+            </div>
+
+            <div>
+                <span>Related Events</span>
+                <strong>{{ incident.events|length }}</strong>
+            </div>
+
+            <div>
+                <span>Current Status</span>
+                <strong>{{ alert.status }}</strong>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- MITRE ATT&CK -->
+
+    <section class="report-section">
+
+        <div class="report-section-header">
+
+            <div>
+                <span class="report-section-number">03</span>
+                <h2>MITRE ATT&CK Mapping</h2>
+            </div>
+
+        </div>
+
+
+        <div class="report-mitre">
+
+            <div class="report-mitre-technique">
+
+                <span class="report-label">
+                    Technique
+                </span>
+
+                <strong>
+                    {{ mitre.technique }}
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span class="report-label">
+                    Technique Name
+                </span>
+
+                <strong>
+                    {{ mitre.name }}
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span class="report-label">
+                    Tactic
+                </span>
+
+                <strong>
+                    {{ mitre.tactic }}
+                </strong>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Affected Hosts -->
+
+    <section class="report-section">
+
+        <div class="report-section-header">
+
+            <div>
+                <span class="report-section-number">04</span>
+                <h2>Affected Systems</h2>
+            </div>
+
+        </div>
+
+
+        <div class="report-hosts">
+
+        {% if alert.computer %}
+
+            {% for host in alert.computer.split(",") %}
+
+                <div class="report-host">
+
+                    <span class="report-host-indicator"></span>
+
+                    <strong>
+                        {{ host.strip() }}
+                    </strong>
+
+                </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <p class="report-muted">
+                No affected host information was recorded.
+            </p>
+
+        {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- Evidence -->
+
+    <section class="report-section">
+
+        <div class="report-section-header">
+
+            <div>
+                <span class="report-section-number">05</span>
+                <h2>Evidence</h2>
+            </div>
+
+            <span class="report-count">
+                {{ incident.events|length }} events
+            </span>
+
+        </div>
+
+
+        <div class="report-table-wrapper">
+
+            <table class="report-table">
+
+                <thead>
+
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Event ID</th>
+                        <th>Computer</th>
+                        <th>Account</th>
+                        <th>Process</th>
+                        <th>Command Line</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                {% for event in incident.events %}
+
+                    <tr>
+
+                        <td>
+                            {{ event.timestamp }}
+                        </td>
+
+                        <td>
+                            <strong>
+                                {{ event.event_id }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ event.computer }}
+                        </td>
+
+                        <td>
+                            {{ event.account or "-" }}
+                        </td>
+
+                        <td>
+                            {{ event.process_name or "-" }}
+                        </td>
+
+                        <td class="report-command">
+                            {{ event.command_line or "-" }}
+                        </td>
+
+                    </tr>
+
+                {% else %}
+
+                    <tr>
+
+                        <td
+                            colspan="6"
+                            class="report-empty"
+                        >
+                            No related events were associated
+                            with this incident.
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <!-- Timeline -->
+
+    <section class="report-section">
+
+        <div class="report-section-header">
+
+            <div>
+                <span class="report-section-number">06</span>
+                <h2>Investigation Timeline</h2>
+            </div>
+
+        </div>
+
+
+        <div class="report-timeline">
+
+        {% for event in incident.events %}
+
+            <div class="report-timeline-item">
+
+                <div class="report-timeline-marker"></div>
+
+                <div class="report-timeline-content">
+
+                    <div class="report-timeline-meta">
+
+                        <strong>
+                            {{ event.timestamp }}
+                        </strong>
+
+                        <span>
+                            Event {{ event.event_id }}
+                        </span>
+
+                    </div>
+
+                    <h3>
+                        {{ event.description or "Security event" }}
+                    </h3>
+
+                    <p>
+
+                        Host:
+                        <strong>
+                            {{ event.computer }}
+                        </strong>
+
+                        {% if event.account %}
+
+                            · Account:
+                            <strong>
+                                {{ event.account }}
+                            </strong>
+
+                        {% endif %}
+
+                    </p>
+
+                    {% if event.process_name %}
+
+                        <div class="report-process">
+
+                            Process:
+                            <code>
+                                {{ event.process_name }}
+                            </code>
+
+                        </div>
+
+                    {% endif %}
+
+                    {% if event.command_line %}
+
+                        <div class="report-process">
+
+                            Command:
+                            <code>
+                                {{ event.command_line }}
+                            </code>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        {% else %}
+
+            <p class="report-muted">
+                No timeline data is available.
+            </p>
+
+        {% endfor %}
+
+        </div>
+
+    </section>
+
+
+    <!-- Analyst Assessment -->
+
+    <section class="report-section">
+
+        <div class="report-section-header">
+
+            <div>
+                <span class="report-section-number">07</span>
+                <h2>Analyst Assessment</h2>
+            </div>
+
+        </div>
+
+
+        <div class="report-assessment">
+
+            {% if alert.detection_type == "SUSPICIOUS_PROCESS" %}
+
+                <p>
+                    The detection identified execution of a process
+                    classified by LateralTrace as suspicious. The
+                    associated Windows telemetry should be reviewed
+                    to determine whether the process execution was
+                    authorized and consistent with expected activity.
+                </p>
+
+            {% elif alert.detection_type == "REMOTE_LOGON" %}
+
+                <p>
+                    The detection identified remote authentication
+                    activity. The source, destination system,
+                    account, and authentication context should be
+                    reviewed to determine whether the activity was
+                    authorized.
+                </p>
+
+            {% elif alert.detection_type == "PRIVILEGED_LOGON" %}
+
+                <p>
+                    The detection identified privileged logon
+                    activity. The associated account and host should
+                    be validated against expected administrative
+                    activity.
+                </p>
+
+            {% elif alert.detection_type == "EXPLICIT_CREDENTIALS" %}
+
+                <p>
+                    The detection identified use of explicit
+                    credentials. The account, target system, and
+                    originating activity should be reviewed for
+                    unauthorized credential use.
+                </p>
+
+            {% elif alert.detection_type == "FAILED_LOGON" %}
+
+                <p>
+                    The detection identified a failed authentication
+                    attempt. Repeated activity from the same source
+                    or against the same account should be reviewed
+                    for possible credential attack activity.
+                </p>
+
+            {% else %}
+
+                <p>
+                    The incident contains security telemetry that
+                    requires analyst review. The associated events,
+                    account, host, and detection context should be
+                    validated against expected activity.
+                </p>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- Recommended Actions -->
+
+    <section class="report-section">
+
+        <div class="report-section-header">
+
+            <div>
+                <span class="report-section-number">08</span>
+                <h2>Recommended Response Actions</h2>
+            </div>
+
+        </div>
+
+
+        <div class="report-actions-list">
+
+            {% if alert.detection_type == "SUSPICIOUS_PROCESS" %}
+
+                <div>
+                    <strong>1. Validate process execution</strong>
+                    <p>
+                        Confirm whether the detected process was
+                        expected and authorized on the affected host.
+                    </p>
+                </div>
+
+                <div>
+                    <strong>2. Review process context</strong>
+                    <p>
+                        Examine the parent process, command line,
+                        account, and surrounding Windows events.
+                    </p>
+                </div>
+
+                <div>
+                    <strong>3. Investigate related activity</strong>
+                    <p>
+                        Review authentication and privilege events
+                        surrounding the detection timestamp.
+                    </p>
+                </div>
+
+            {% elif alert.detection_type == "REMOTE_LOGON" %}
+
+                <div>
+                    <strong>1. Validate the source</strong>
+                    <p>
+                        Confirm that the source system and account
+                        are authorized to access the destination host.
+                    </p>
+                </div>
+
+                <div>
+                    <strong>2. Review authentication activity</strong>
+                    <p>
+                        Examine related logon, privilege, and process
+                        creation events.
+                    </p>
+                </div>
+
+                <div>
+                    <strong>3. Check for lateral movement</strong>
+                    <p>
+                        Determine whether the same account accessed
+                        additional systems during the investigation window.
+                    </p>
+                </div>
+
+            {% else %}
+
+                <div>
+                    <strong>1. Validate the activity</strong>
+                    <p>
+                        Determine whether the detected activity was
+                        authorized and expected.
+                    </p>
+                </div>
+
+                <div>
+                    <strong>2. Review surrounding telemetry</strong>
+                    <p>
+                        Examine related authentication, privilege,
+                        and process events.
+                    </p>
+                </div>
+
+                <div>
+                    <strong>3. Investigate correlated activity</strong>
+                    <p>
+                        Review the account and affected systems for
+                        additional suspicious behavior.
+                    </p>
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </section>
+
+
+    <!-- Report Footer -->
+
+    <div class="report-footer">
+
+        <div>
+
+            <strong>
+                LateralTrace
+            </strong>
+
+            <span>
+                Windows Lateral Movement Investigation Platform
+            </span>
+
+        </div>
+
+        <div>
+
+            <span>
+                Incident #{{ alert.id }}
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <!-- Navigation -->
+
+    <div class="report-navigation">
+
+        <a
+            href="/incidents/{{ alert.id }}"
+            class="secondary-button"
+        >
+            Back to Incident
+        </a>
+
+        <button
+            type="button"
+            class="primary-button"
+            onclick="window.print()"
+        >
+            Print / Save PDF
+        </button>
+
+    </div>
+
+</div>
+
+{% endblock %}

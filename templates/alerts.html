@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+        <h1>Security Alerts</h1>
+
+        <p>
+            Persistent detections generated from Windows telemetry
+        </p>
+    </div>
+
+</div>
+
+
+<div class="card">
+
+    <form method="get" action="/alerts/">
+
+        <label for="status">
+            Status
+        </label>
+
+        <div class="alert-filter">
+
+            <select name="status" id="status">
+
+                <option
+                    value=""
+                    {% if not status %}selected{% endif %}
+                >
+                    All Alerts
+                </option>
+
+                <option
+                    value="NEW"
+                    {% if status == "NEW" %}selected{% endif %}
+                >
+                    New
+                </option>
+
+                <option
+                    value="INVESTIGATING"
+                    {% if status == "INVESTIGATING" %}selected{% endif %}
+                >
+                    Investigating
+                </option>
+
+                <option
+                    value="RESOLVED"
+                    {% if status == "RESOLVED" %}selected{% endif %}
+                >
+                    Resolved
+                </option>
+
+                <option
+                    value="FALSE_POSITIVE"
+                    {% if status == "FALSE_POSITIVE" %}selected{% endif %}
+                >
+                    False Positive
+                </option>
+
+            </select>
+
+            <button type="submit">
+                Filter Alerts
+            </button>
+
+        </div>
+
+    </form>
+
+</div>
+
+
+<div class="section-header">
+
+    <h2>Alerts</h2>
+
+    <span>
+        {{ alerts|length }} alerts
+    </span>
+
+</div>
+
+
+<div class="card">
+
+    <div class="table-container">
+
+        <table>
+
+            <thead>
+
+                <tr>
+                    <th>Time</th>
+                    <th>Severity</th>
+                    <th>Detection</th>
+                    <th>Account</th>
+                    <th>Computer</th>
+                    <th>Score</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+            {% for alert in alerts %}
+
+                <tr>
+
+                    <td>
+                        {{ alert.timestamp }}
+                    </td>
+
+                    <td>
+
+                        <span class="severity-badge severity-{{ alert.severity|lower }}">
+                            {{ alert.severity }}
+                        </span>
+
+                    </td>
+
+                    <td>
+
+                        <strong>
+                            {{ alert.detection_type }}
+                        </strong>
+
+                        <div class="alert-message">
+                            {{ alert.message }}
+                        </div>
+
+                    </td>
+
+                    <td>
+                        {{ alert.account or "-" }}
+                    </td>
+
+                    <td>
+                        {{ alert.computer or "-" }}
+                    </td>
+
+                    <td>
+                        {{ alert.score }}
+                    </td>
+
+                    <td>
+                        {{ alert.status }}
+                    </td>
+
+                    <td>
+
+                        <div class="alert-actions">
+
+                            <a
+                                href="/incidents/{{ alert.id }}"
+                                class="button"
+                            >
+                                Investigate
+                            </a>
+
+                            <form
+                                method="post"
+                                action="/alerts/{{ alert.id }}/status"
+                            >
+
+                                <select
+                                    name="status"
+                                    onchange="this.form.submit()"
+                                >
+
+                                    <option value="">
+                                        Change
+                                    </option>
+
+                                    <option value="NEW">
+                                        New
+                                    </option>
+
+                                    <option value="INVESTIGATING">
+                                        Investigating
+                                    </option>
+
+                                    <option value="RESOLVED">
+                                        Resolved
+                                    </option>
+
+                                    <option value="FALSE_POSITIVE">
+                                        False Positive
+                                    </option>
+
+                                </select>
+
+                            </form>
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+            {% else %}
+
+                <tr>
+
+                    <td colspan="8">
+                        No alerts found.
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

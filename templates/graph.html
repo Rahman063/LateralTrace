@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+            Attack Graph
+        </h1>
+
+        <p>
+            Visualize authentication relationships between
+            systems in the environment.
+        </p>
+
+    </div>
+
+    <div class="incident-status">
+        GRAPH
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>
+                Lateral Movement Relationships
+            </h2>
+
+            <p>
+                Nodes represent hosts and source addresses.
+                Edges represent successful remote authentication.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <form
+        method="get"
+        action="/graph/"
+        class="filter-form"
+    >
+
+        <div class="filter-group">
+
+            <label>
+                Account
+            </label>
+
+            <input
+                type="text"
+                name="account"
+                value="{{ account }}"
+                placeholder="svc_backup"
+            >
+
+        </div>
+
+
+        <button type="submit">
+            Build Graph
+        </button>
+
+    </form>
+
+
+    <div
+        id="attack-graph"
+        class="attack-graph"
+    ></div>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>
+                Relationships
+            </h2>
+
+            <p>
+                Authentication events represented in the graph.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Time
+                    </th>
+
+                    <th>
+                        Source
+                    </th>
+
+                    <th>
+                        Destination
+                    </th>
+
+                    <th>
+                        Account
+                    </th>
+
+                    <th>
+                        Logon Type
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for edge in graph_data.edges %}
+
+                <tr>
+
+                    <td class="timestamp">
+                        {{ edge.data.timestamp }}
+                    </td>
+
+                    <td class="timestamp">
+                        {{ edge.data.source.replace("source:", "") }}
+                    </td>
+
+                    <td>
+                        {{ edge.data.target.replace("host:", "") }}
+                    </td>
+
+                    <td>
+                        {{ edge.data.account }}
+                    </td>
+
+                    <td>
+                        Type {{ edge.data.logon_type }}
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+
+                    <td
+                        colspan="5"
+                        class="empty"
+                    >
+                        No authentication relationships found.
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<script
+    src="https://unpkg.com/cytoscape@3.30.4/dist/cytoscape.min.js"
+></script>
+
+
+<script
+    id="graph-data"
+    type="application/json"
+>
+{{ graph_data | tojson }}
+</script>
+
+
+<script>
+
+const graphDataElement = document.getElementById(
+    "graph-data"
+);
+
+
+const graphData = JSON.parse(
+    graphDataElement.textContent
+);
+
+
+const graphContainer = document.getElementById(
+    "attack-graph"
+);
+
+
+const cy = cytoscape({
+
+    container: graphContainer,
+
+    elements: [
+        ...graphData.nodes,
+        ...graphData.edges
+    ],
+
+    style: [
+
+        {
+            selector: "node",
+
+            style: {
+                "label": "data(label)",
+                "text-valign": "center",
+                "text-halign": "center",
+                "background-color": "#202b36",
+                "border-width": 1,
+                "border-color": "#526474",
+                "color": "#dce5ec",
+                "font-family": "Consolas, monospace",
+                "font-size": "12px",
+                "width": 70,
+                "height": 70
+            }
+        },
+
+        {
+            selector: 'node[type="source"]',
+
+            style: {
+                "background-color": "#382c22",
+                "border-color": "#80633e",
+                "shape": "diamond"
+            }
+        },
+
+        {
+            selector: 'node[type="host"]',
+
+            style: {
+                "background-color": "#1d2e3d",
+                "border-color": "#4c718e",
+                "shape": "round-rectangle"
+            }
+        },
+
+        {
+            selector: "edge",
+
+            style: {
+                "width": 2,
+                "line-color": "#526474",
+                "target-arrow-color": "#7c91a3",
+                "target-arrow-shape": "triangle",
+                "curve-style": "bezier",
+                "label": "data(account)",
+                "color": "#9ba8b4",
+                "font-family": "Consolas, monospace",
+                "font-size": "10px",
+                "text-background-color": "#10151b",
+                "text-background-opacity": 1,
+                "text-background-padding": "3px"
+            }
+        }
+
+    ],
+
+    layout: {
+        name: "breadthfirst",
+        directed: true,
+        padding: 40,
+        spacingFactor: 1.4
+    }
+
+});
+
+
+cy.on(
+    "tap",
+    "edge",
+    function(event) {
+
+        const edge = event.target;
+
+        const data = edge.data();
+
+        alert(
+            "Account: " +
+            data.account +
+            "\n" +
+            "Time: " +
+            data.timestamp +
+            "\n" +
+            "Logon Type: " +
+            data.logon_type
+        );
+
+    }
+);
+
+</script>
+
+{% endblock %}

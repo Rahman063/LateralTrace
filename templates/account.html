@@ -1,0 +1,390 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+            Account Investigation
+        </h1>
+
+        <p>
+            Authentication and activity associated with
+            this account.
+        </p>
+
+    </div>
+
+    <div class="incident-status">
+        ACCOUNT
+    </div>
+
+</div>
+
+
+<div class="account-heading">
+
+    <div class="account-name">
+        {{ summary.account }}
+    </div>
+
+</div>
+
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+
+        <span>
+            FIRST SEEN
+        </span>
+
+        <strong class="small-value">
+            {{ summary.first_seen }}
+        </strong>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <span>
+            LAST SEEN
+        </span>
+
+        <strong class="small-value">
+            {{ summary.last_seen }}
+        </strong>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <span>
+            HOSTS
+        </span>
+
+        <strong>
+            {{ summary.host_count }}
+        </strong>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <span>
+            SOURCE IPS
+        </span>
+
+        <strong>
+            {{ summary.source_count }}
+        </strong>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <span>
+            SUCCESSFUL LOGONS
+        </span>
+
+        <strong>
+            {{ summary.successful_logons }}
+        </strong>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <span>
+            PRIVILEGED EVENTS
+        </span>
+
+        <strong>
+            {{ summary.privileged_events }}
+        </strong>
+
+    </div>
+
+</div>
+
+
+<div class="two-column">
+
+
+    <div class="panel">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h2>
+                    Observed Hosts
+                </h2>
+
+                <p>
+                    Systems associated with this account.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Host
+                        </th>
+
+                        <th>
+                            Events
+                        </th>
+
+                        <th>
+                            First Seen
+                        </th>
+
+                        <th>
+                            Last Seen
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for host in hosts %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ host.computer }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ host.event_count }}
+                        </td>
+
+                        <td>
+                            {{ host.first_seen }}
+                        </td>
+
+                        <td>
+                            {{ host.last_seen }}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <div class="panel">
+
+        <div class="panel-header">
+
+            <div>
+
+                <h2>
+                    Source Addresses
+                </h2>
+
+                <p>
+                    Network sources observed for this account.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Source IP
+                        </th>
+
+                        <th>
+                            Events
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    {% for source in sources %}
+
+                    <tr>
+
+                        <td class="timestamp">
+                            {{ source.source_ip }}
+                        </td>
+
+                        <td>
+                            {{ source.event_count }}
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>
+                Activity Timeline
+            </h2>
+
+            <p>
+                All recorded events for {{ summary.account }}.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Time
+                    </th>
+
+                    <th>
+                        Event
+                    </th>
+
+                    <th>
+                        Computer
+                    </th>
+
+                    <th>
+                        Source
+                    </th>
+
+                    <th>
+                        Logon
+                    </th>
+
+                    <th>
+                        Process
+                    </th>
+
+                    <th>
+                        Description
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for event in events %}
+
+                <tr>
+
+                    <td class="timestamp">
+                        {{ event.timestamp }}
+                    </td>
+
+                    <td>
+                        <span class="event-id">
+                            {{ event.event_id }}
+                        </span>
+                    </td>
+
+                    <td>
+                        {{ event.computer }}
+                    </td>
+
+                    <td>
+                        {{ event.source_ip or "-" }}
+                    </td>
+
+                    <td>
+
+                        {% if event.logon_type %}
+                            Type {{ event.logon_type }}
+                        {% else %}
+                            -
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+                        {{ event.process_name or "-" }}
+                    </td>
+
+                    <td>
+                        {{ event.description }}
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

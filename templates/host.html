@@ -1,0 +1,427 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+            Host Investigation
+        </h1>
+
+        <p>
+            Authentication and privileged activity associated
+            with this system.
+        </p>
+
+    </div>
+
+    <div class="incident-status">
+        HOST
+    </div>
+
+</div>
+
+
+<div class="account-heading">
+
+    <div class="account-name">
+        {{ summary.computer }}
+    </div>
+
+</div>
+
+
+<div class="stats-grid">
+
+    <div class="stat-card">
+
+        <span>
+            FIRST SEEN
+        </span>
+
+        <strong class="small-value">
+            {{ summary.first_seen }}
+        </strong>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <span>
+            LAST SEEN
+        </span>
+
+        <strong class="small-value">
+            {{ summary.last_seen }}
+        </strong>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <span>
+            EVENTS
+        </span>
+
+        <strong>
+            {{ summary.total_events }}
+        </strong>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <span>
+            ACCOUNTS
+        </span>
+
+        <strong>
+            {{ summary.account_count }}
+        </strong>
+
+    </div>
+
+
+    <div class="stat-card">
+
+        <span>
+            SOURCE IPS
+        </span>
+
+        <strong>
+            {{ summary.source_count }}
+        </strong>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>
+                Incoming Authentication
+            </h2>
+
+            <p>
+                Successful authentication events targeting this host.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Time
+                    </th>
+
+                    <th>
+                        Account
+                    </th>
+
+                    <th>
+                        Source IP
+                    </th>
+
+                    <th>
+                        Logon Type
+                    </th>
+
+                    <th>
+                        Event
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for event in incoming %}
+
+                <tr>
+
+                    <td class="timestamp">
+                        {{ event.timestamp }}
+                    </td>
+
+                    <td>
+                        <strong>
+                            {{ event.account }}
+                        </strong>
+                    </td>
+
+                    <td class="timestamp">
+                        {{ event.source_ip or "-" }}
+                    </td>
+
+                    <td>
+                        {% if event.logon_type %}
+                            Type {{ event.logon_type }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <span class="event-id">
+                            {{ event.event_id }}
+                        </span>
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+
+                    <td
+                        colspan="5"
+                        class="empty"
+                    >
+                        No incoming authentication found.
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>
+                Privileged Activity
+            </h2>
+
+            <p>
+                Privilege assignment and process creation associated
+                with this host.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Time
+                    </th>
+
+                    <th>
+                        Event
+                    </th>
+
+                    <th>
+                        Account
+                    </th>
+
+                    <th>
+                        Process
+                    </th>
+
+                    <th>
+                        Command Line
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for event in privileged %}
+
+                <tr>
+
+                    <td class="timestamp">
+                        {{ event.timestamp }}
+                    </td>
+
+                    <td>
+                        <span class="event-id">
+                            {{ event.event_id }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <strong>
+                            {{ event.account }}
+                        </strong>
+                    </td>
+
+                    <td>
+                        {{ event.process_name or "-" }}
+                    </td>
+
+                    <td class="timestamp">
+                        {{ event.command_line or "-" }}
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+
+                    <td
+                        colspan="5"
+                        class="empty"
+                    >
+                        No privileged activity found.
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>
+                Host Timeline
+            </h2>
+
+            <p>
+                All recorded events for {{ summary.computer }}.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Time
+                    </th>
+
+                    <th>
+                        Event
+                    </th>
+
+                    <th>
+                        Account
+                    </th>
+
+                    <th>
+                        Source
+                    </th>
+
+                    <th>
+                        Process
+                    </th>
+
+                    <th>
+                        Description
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for event in events %}
+
+                <tr>
+
+                    <td class="timestamp">
+                        {{ event.timestamp }}
+                    </td>
+
+                    <td>
+                        <span class="event-id">
+                            {{ event.event_id }}
+                        </span>
+                    </td>
+
+                    <td>
+                        {{ event.account }}
+                    </td>
+
+                    <td>
+                        {{ event.source_ip or "-" }}
+                    </td>
+
+                    <td>
+                        {{ event.process_name or "-" }}
+                    </td>
+
+                    <td>
+                        {{ event.description }}
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

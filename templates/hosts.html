@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+
+        <h1>
+            Host Investigation
+        </h1>
+
+        <p>
+            Review systems observed in the Windows environment.
+        </p>
+
+    </div>
+
+    <div class="incident-status">
+        HOSTS
+    </div>
+
+</div>
+
+
+<div class="panel">
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>
+                Observed Hosts
+            </h2>
+
+            <p>
+                Select a host to investigate authentication
+                and privileged activity.
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <div class="table-wrapper">
+
+        <table>
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Host
+                    </th>
+
+                    <th>
+                        Events
+                    </th>
+
+                    <th>
+                        Accounts
+                    </th>
+
+                    <th>
+                        Source IPs
+                    </th>
+
+                    <th>
+                        First Seen
+                    </th>
+
+                    <th>
+                        Last Seen
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+            <tbody>
+
+                {% for host in hosts %}
+
+                <tr>
+
+                    <td>
+
+                        <a
+                            href="/hosts/{{ host.computer }}"
+                            class="table-link"
+                        >
+                            {{ host.computer }}
+                        </a>
+
+                    </td>
+
+
+                    <td>
+                        {{ host.event_count }}
+                    </td>
+
+
+                    <td>
+                        {{ host.account_count }}
+                    </td>
+
+
+                    <td>
+                        {{ host.source_count }}
+                    </td>
+
+
+                    <td class="timestamp">
+                        {{ host.first_seen }}
+                    </td>
+
+
+                    <td class="timestamp">
+                        {{ host.last_seen }}
+                    </td>
+
+                </tr>
+
+                {% else %}
+
+                <tr>
+
+                    <td
+                        colspan="6"
+                        class="empty"
+                    >
+                        No hosts found.
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <h1>Incidents</h1>
+
+    <p>
+        Security alerts requiring investigation
+    </p>
+
+</div>
+
+
+<div class="card">
+
+    <table>
+
+        <thead>
+
+            <tr>
+                <th>ID</th>
+                <th>Time</th>
+                <th>Detection</th>
+                <th>Severity</th>
+                <th>Account</th>
+                <th>Score</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+        {% for alert in alerts %}
+
+            <tr>
+
+                <td>
+                    #{{ alert.id }}
+                </td>
+
+                <td>
+                    {{ alert.timestamp }}
+                </td>
+
+                <td>
+                    {{ alert.detection_type }}
+                </td>
+
+                <td>
+                    {{ alert.severity }}
+                </td>
+
+                <td>
+                    {{ alert.account or "-" }}
+                </td>
+
+                <td>
+                    {{ alert.score }}
+                </td>
+
+                <td>
+                    {{ alert.status }}
+                </td>
+
+                <td>
+                    <a
+                        href="/incidents/{{ alert.id }}"
+                    >
+                        Investigate
+                    </a>
+                </td>
+
+            </tr>
+
+        {% else %}
+
+            <tr>
+
+                <td colspan="8">
+                    No incidents available.
+                </td>
+
+            </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        LateralTrace
+    </title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+</head>
+
+<body>
+
+    <header class="topbar">
+
+        <div class="brand">
+            <a href="/">
+                LateralTrace
+            </a>
+
+            <span>
+                SOC Investigation Platform
+            </span>
+        </div>
+
+        <div class="status">
+            LOCAL LAB
+        </div>
+
+    </header>
+
+
+    <div class="layout">
+
+        <aside class="sidebar">
+
+            <div class="sidebar-title">
+                INVESTIGATE
+            </div>
+
+            <a href="/">
+                Dashboard
+            </a>
+
+            <a href="/events/">
+                Events
+            </a>
+
+            <div class="sidebar-title">
+                ANALYSIS
+            </div>
+
+            <a href="/accounts/">
+    Accounts
+</a>
+
+            <a href="/hosts/">
+    Hosts
+</a>
+
+            <a href="/timeline/">
+    Timeline
+</a>
+
+            <a href="/graph/">
+    Attack Graph
+</a>
+
+
+
+            <div class="sidebar-title">
+                REPORT
+            </div>
+
+            <a href="/incidents/">
+    Incident Detection
+</a>
+<a href="/alerts/">Alerts</a>
+           <a href="/mitre/">
+    MITRE ATT&CK
+</a>
+
+        </aside>
+
+
+        <main class="content">
+
+            {% block content %}
+            {% endblock %}
+
+        </main>
+
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+
+    <div>
+        <h1>MITRE ATT&CK Mapping</h1>
+
+        <p>
+            Detection rules mapped to MITRE ATT&CK techniques.
+        </p>
+    </div>
+
+</div>
+
+
+<div class="card">
+
+    <div class="table-container">
+
+        <table class="mitre-table">
+
+            <thead>
+                <tr>
+                    <th>Detection</th>
+                    <th>Technique</th>
+                    <th>Name</th>
+                    <th>Tactic</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+            {% for mapping in mappings %}
+
+                <tr>
+
+                    <td>
+                        {{ mapping.detection_type }}
+                    </td>
+
+                    <td class="mitre-technique">
+                        {{ mapping.technique }}
+                    </td>
+
+                    <td>
+                        {{ mapping.name }}
+                    </td>
+
+                    <td class="mitre-tactic">
+                        {{ mapping.tactic }}
+                    </td>
+
+                </tr>
+
+            {% else %}
+
+                <tr>
+
+                    <td colspan="4">
+                        No MITRE mappings configured.
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+{% endblock %}
